@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global COVID-19 Statistics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  canvas {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+  a{
+    padding: 10px;
+    background: red;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Global COVID-19 Statistics</h1>
+</header>
+<a align="center" href="./index.html">Change Interface</a>
+
+<main>
+  <div>
+    <canvas id="casesChart"></canvas>
+  </div>
+</main>
+<script>
+const apiUrl = 'https://corona.lmao.ninja/v2/all?yesterday=true';
+
+async function fetchGlobalData() {
+  try {
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching global COVID-19 data:', error);
+    return null;
+  }
+}
+
+async function updateChart() {
+  const globalData = await fetchGlobalData();
+  if (!globalData) {
+    return;
+  }
+
+  const ctx = document.getElementById('casesChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Total Cases', 'Total Deaths', 'Total Recovered'],
+      datasets: [{
+        data: [
+          globalData.cases,
+          globalData.deaths,
+          globalData.recovered
+        ],
+        backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(75, 192, 192, 0.8)', 'rgba(54, 162, 235, 0.8)'],
+        borderColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom'
+        }
+      }
+    }
+  });
+}
+
+updateChart();
+</script>
+</body>
+</html>
