@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> COVID-19 Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  canvas {
+    display: block;
+    margin: 0 auto;
+    min-width: 80vw;
+  }
+  a{
+    padding: 10px;
+    background: blue;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>COVID-19 Statistics Dashboard</h1>
+</header>
+<a align="center" href="./in1.html">Change Interface</a>
+<main>
+  <div>
+    <canvas id="casesChart"></canvas>
+  </div>
+</main>
+<footer>
+  <p>Data source: <a href="https://disease.sh" target="_blank">Disease.sh API</a></p>
+</footer>
+<script>
+const apiUrl = 'https://disease.sh/v3/covid-19/all';
+
+async function fetchCovidData() {
+  try {
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching COVID-19 data:', error);
+    return null;
+  }
+}
+
+async function updateChart() {
+  const covidData = await fetchCovidData();
+  if (!covidData) {
+    return;
+  }
+
+  const ctx = document.getElementById('casesChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Total Cases', 'Total Deaths', 'Total Recovered'],
+      datasets: [{
+        label: 'COVID-19 Statistics',
+        data: [
+          covidData.cases,
+          covidData.deaths,
+          covidData.recovered
+        ],
+        backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(54, 162, 235, 1)'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Number of Cases'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        title: {
+          display: true,
+          text: 'COVID-19 Statistics'
+        }
+      }
+    }
+  });
+}
+
+updateChart();
+setInterval(updateChart, 600000);
+</script>
+</body>
+</html>
